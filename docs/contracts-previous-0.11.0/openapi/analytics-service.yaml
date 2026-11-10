@@ -1,0 +1,424 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ANL-01 isolated Analytics candidate",
+    "version": "0.1.0",
+    "description": "UNRELEASED candidate. SIMULATED-only observed production history; no stream-completeness, forecast or yield claim."
+  },
+  "paths": {
+    "/api/v1/analytics/estates/{estateId}/blocks/{blockId}/production/daily": {
+      "get": {
+        "operationId": "getDailyProductionHistory",
+        "parameters": [
+          {
+            "name": "estateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "blockId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exactly one row per requested date; NONE metrics are null. Observed records do not prove stream completeness.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyProductionHistory"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid/unknown query or range",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid/missing signed token",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role/estate/delegated read denied",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown/inactive canonical block",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Reference/projection unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "description": "Explicit estate/block; inclusive 1..367 dates, unknown parameters rejected. PLATFORM_ADMIN/PLANTATION_ADMIN globally; assigned ESTATE_ADMIN/ESTATE_MANAGER/AUDITOR only. Validate signed issuer/audience/lifetime and estate scope before references or projection queries. No worker/viewer/supervisor access. Delegated active-block check; dependency failure is 503, never empty success."
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "DailyProductionHistory": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "estateId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "blockId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "from": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "to": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.[0-9]{1,6})?Z$"
+          },
+          "dataProvenance": {
+            "type": "string",
+            "const": "SIMULATED"
+          },
+          "aggregationPolicy": {
+            "type": "string",
+            "const": "SUM_ROUNDED_COLLECTION_KG_V1"
+          },
+          "projectionState": {
+            "type": "string",
+            "enum": [
+              "OBSERVED_ONLY",
+              "INCOMPLETE"
+            ]
+          },
+          "lastProcessedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.[0-9]{1,6})?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "latestSourceEventAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.[0-9]{1,6})?Z$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "missingSourceVersionCount": {
+            "type": "string",
+            "pattern": "^(?:0|[1-9][0-9]*)$"
+          },
+          "conflictCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807
+          },
+          "unsupportedCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807
+          },
+          "sourceVersionSample": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "collectionId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                },
+                "aggregateVersion": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9223372036854775807
+                },
+                "sourceEventId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                },
+                "sourceEventAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.[0-9]{1,6})?Z$"
+                },
+                "collectionDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                }
+              },
+              "required": [
+                "collectionId",
+                "aggregateVersion",
+                "sourceEventId",
+                "sourceEventAt",
+                "collectionDate"
+              ]
+            }
+          },
+          "sourceVersionSampleTruncated": {
+            "type": "boolean"
+          },
+          "days": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 367,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                "availability": {
+                  "type": "string",
+                  "enum": [
+                    "NONE",
+                    "OBSERVED"
+                  ]
+                },
+                "metrics": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "activeCollectionCount": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9223372036854775807
+                        },
+                        "pendingDrcCount": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9223372036854775807
+                        },
+                        "calculatedCollectionCount": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9223372036854775807
+                        },
+                        "voidedCollectionCount": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9223372036854775807
+                        },
+                        "totalWetLatexKg": {
+                          "type": "string",
+                          "pattern": "^(?:0|[1-9][0-9]*)\\.[0-9]{3}$"
+                        },
+                        "pendingWetLatexKg": {
+                          "type": "string",
+                          "pattern": "^(?:0|[1-9][0-9]*)\\.[0-9]{3}$"
+                        },
+                        "calculatedWetLatexKg": {
+                          "type": "string",
+                          "pattern": "^(?:0|[1-9][0-9]*)\\.[0-9]{3}$"
+                        },
+                        "knownDryRubberKg": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^(?:0|[1-9][0-9]*)\\.[0-9]{3}$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "isComplete": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "activeCollectionCount",
+                        "pendingDrcCount",
+                        "calculatedCollectionCount",
+                        "voidedCollectionCount",
+                        "totalWetLatexKg",
+                        "pendingWetLatexKg",
+                        "calculatedWetLatexKg",
+                        "knownDryRubberKg",
+                        "isComplete"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "date",
+                "availability",
+                "metrics"
+              ]
+            }
+          }
+        },
+        "required": [
+          "estateId",
+          "blockId",
+          "from",
+          "to",
+          "generatedAt",
+          "dataProvenance",
+          "aggregationPolicy",
+          "projectionState",
+          "lastProcessedAt",
+          "latestSourceEventAt",
+          "missingSourceVersionCount",
+          "conflictCount",
+          "unsupportedCount",
+          "sourceVersionSample",
+          "sourceVersionSampleTruncated",
+          "days"
+        ]
+      },
+      "Problem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              400,
+              401,
+              403,
+              404,
+              429,
+              503
+            ]
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail"
+        ]
+      }
+    }
+  }
+}

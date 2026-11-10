@@ -1,4 +1,4 @@
-name: Java foundation
+name: Analytics validation
 on: [push, pull_request]
 permissions:
   contents: read
@@ -13,4 +13,9 @@ jobs:
           java-version: "25"
           cache: maven
       - run: chmod +x mvnw
-      - run: ./mvnw --batch-mode --no-transfer-progress verify
+      - run: ./mvnw --batch-mode --no-transfer-progress verify -Pintegration
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/validate_contract_pins.py --jar target/agrosphere-analytics-service-0.1.0.jar
+      - run: python -m unittest discover -s scripts -p test_contract_pins.py -v

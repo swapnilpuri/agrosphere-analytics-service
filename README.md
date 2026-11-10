@@ -1,19 +1,27 @@
 # agrosphere-analytics-service
 
-Service-owned materialized KPI projections, productivity/yield summaries, dashboards and historical comparisons. No cross-database SQL.
-
-This is an independent project and Git root. Version: 0.1.0; use independent SemVer tags and CHANGELOG.md. License decision: LICENSE.md (all rights reserved pending selection).
-
-See AGENTS.md for scope and engineering rules. This scaffold provides no business APIs or production features. Architecture lives in the sibling agrosphere-architecture repository; versioned API/event definitions live in agrosphere-contracts. Do not add path dependencies to sibling projects.
+Independent Java 25 / Spring Boot 4.0.9 service; version 0.1.0. ANL-01 materializes SIMULATED daily production from four independently pinned Operations collection-v2 events. No cross-service SQL, shared models or source-service/browser summation. Contracts 0.12.0 now pins the accepted extended API and unchanged Telemetry v1 input alongside four retained collection-v2 schemas. Previous API/metadata are archived; environmental adapters remain unimplemented. See [runtime guide](docs/ANL01_RUNTIME.md), [accepted package](docs/ANL01_ADAPTER_REVIEW.md) and Architecture's continuation/evidence record. Original foundation/preparation reports remain historical evidence.
 
 ## Build and test
 
-Requires JDK 25. Run ./mvnw verify (Windows: .\mvnw.cmd verify). No infrastructure is needed for the security policy tests. Four tests verify public health, unauthenticated denial, authenticated access and invalid-token rejection using test-only routes and a test decoder. Real issuer/audience, database and Testcontainers integration tests arrive with the first use case.
+Run `./mvnw verify` (Windows `.\mvnw.cmd verify`) on JDK 25. Run `./mvnw verify -Pintegration` with Docker for newly owned PostgreSQL/JWKS/HTTP fixtures. Then `python scripts/validate_contract_pins.py --jar target/agrosphere-analytics-service-0.1.0.jar`. Independent Docker packaging runs `verify`; integration tests run separately with Docker, never inside the image build. Existing JUnit 5 tests deliberately manage Spring contexts without SpringExtension (Spring 7 expects JUnit 6 APIs).
 
-Copy .env.example to .env and supply private values when runtime work begins. Spring does not load .env automatically: export variables or use Compose. Run ./mvnw spring-boot:run only after database and OIDC configuration. Only Actuator health is public.
+## Runtime boundary
 
-Packages reserve clean domain, application, ports, web/messaging and persistence adapters. V1 creates outbox and idempotency infrastructure only; no handlers or relays are implemented. Flyway owns DDL; JPA validates schemas.
+Default ingestion and business reads are disabled; default Flyway targets V1, preserving the additive V2 gate. Activation requires an explicit short-lived generated ownership manifest/hash, matching database URL/principals, database marker and source scope. Use only Infrastructure's generated `verify_analytics.py` harness. It provisions separate migration/runtime principals and private bounded AMQP topology in a new labelled project; it never loads an existing private environment file. No existing-stack activation, migration, account enablement or production readiness is implied.
 
-Spring Boot 4.0.9 / Java 25. JUnit Jupiter 5.14.4 overrides the Boot 4 JUnit 6 default to retain the requested JUnit 5 baseline. CI verifies this combination. Boot manages other dependencies except those explicitly pinned in pom.xml.
+Only health is public. Business JWTs require issuer, signature, expiry, audience and accepted role/trusted estate scope; active Estate/block validation forwards the caller token. Private optional metrics require PLATFORM_ADMIN/PLANTATION_ADMIN and are not routed through the Gateway business API.
 
-JUnit compatibility: Spring 7 SpringExtension calls JUnit 6-only APIs. Foundation security tests use JUnit 5 with an explicitly managed Spring web context instead. Do not introduce @SpringBootTest/SpringExtension until the JUnit baseline decision is revisited or a supported JUnit 5 integration approach is tested. These tests use a mock decoder and do not verify live OIDC claims.
+The [finite admission profile](docs/ANL01_ADMISSION_REVIEW.md) is owner-approved; Architecture ANALYTICS_POC_ADMISSION_APPROVAL.md records the exact acceptance. Limits apply to this generated profile, which cannot accept every encoding permitted by the public schema. See docs/ANL01_ADMISSION_IMPLEMENTATION.md for limits and actual check evidence. Owner functional acceptance and original M4 completion remain separate. No REAL data, AI, forecasting, hosting, deployment or Git publication is delivered.
+
+## ANL-02 pure preparation â€” 2026-11-05
+
+[Pure rules/ports](docs/ANL02_PURE_PREPARATION.md) preserve exact per-device environmental evidence, immutable conflicts, explicit half-open UTC windows and bounded observed-history reads. Nine new tests; no runtime registration or parser/storage/consumer/endpoint. Contracts 0.11.0 pins remain unchanged; exact executable release and [runtime review](docs/ANL02_ADAPTER_REVIEW.md) remain separate gates.
+
+## ANL-02 accepted independent pins — 2026-11-05
+
+Owner exact executable acceptance/local release is recorded in Architecture ANALYTICS_ENVIRONMENT_CONTRACT_APPROVAL.md. Six API/input files pin local Contracts 0.12.0; old API/RELEASE metadata lives in docs/contracts-previous-0.11.0. Standalone/JAR validation also checks this archive. Run `python -m unittest discover -s scripts -p test_contract_pins.py -v`. Historical preparation/pending labels are satisfied for this exact release only. Environmental runtime/SQL/queue/security/provisioning remains separately gated.
+
+## ANL-02 runtime — 2026-11-05
+
+[Environmental runtime guide](docs/ANL02_RUNTIME.md): immutable SIMULATED history, strict Telemetry v1 consumer, bounded UTC read API and guarded rebuild are implemented. Default disabled; only the approved newly owned generated fixture may activate V3. Independent Contracts 0.12.0 pins remain exact; owner/M4 acceptance stays open.

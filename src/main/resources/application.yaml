@@ -16,7 +16,11 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+    user: ${DB_MIGRATION_USER:${DB_USER}}
+    password: ${DB_MIGRATION_PASSWORD:${DB_PASSWORD}}
   rabbitmq:
+    publisher-confirm-type: correlated
+    publisher-returns: true
     host: ${RABBITMQ_HOST:localhost}
     username: ${RABBITMQ_USER}
     password: ${RABBITMQ_PASSWORD}
@@ -34,3 +38,11 @@ management:
   tracing:
     sampling:
       probability: 0.1
+
+analytics:
+  environment:
+    enabled: ${ANALYTICS_ENVIRONMENT_ENABLED:false}
+  demo:
+    enabled: ${ANALYTICS_DEMO_ENABLED:false}
+  security:
+    audience: ${OIDC_AUDIENCE:agrosphere-api}

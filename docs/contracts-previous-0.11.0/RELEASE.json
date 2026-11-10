@@ -1,0 +1,11 @@
+{
+  "release": "0.11.0",
+  "sourceManifestSha256": "43d9e5f7b328002c735cdf85da3f6ed5e0c9ff41a2f74aaccdcc0b8e8a396998",
+  "files": {
+    "openapi/analytics-service.yaml": "f84ce861b7f6ed1b287ca3a5e8430061a568f9c22cac280d52fbb574117df300",
+    "events/operations/v2/LatexCollectionRecorded.schema.json": "d0dab40a2c23f751b3241f8842b180ead38e15102b699b4701827b857b58e479",
+    "events/operations/v2/DrcMeasurementRecorded.schema.json": "8117eaeddafa695529c99274cff4cbeafa372664914d95b4d5f8c5b2f7c31709",
+    "events/operations/v2/LatexCollectionAdjusted.schema.json": "985f6d66815682f06ad6e743cea517dcc8e96c99dd91f72f0234c86d7fb32fe1",
+    "events/operations/v2/LatexCollectionVoided.schema.json": "a0b6270ca8d73d46bbd07225a84ecdf8d4a27e24fbaad42dbb0a41953041f989"
+  }
+}

@@ -1,0 +1,9 @@
+# Approved finite generated admission profile
+
+Architecture ANALYTICS_POC_ADMISSION_APPROVAL.md accepts exact review 5c9a6787f0ebf2ad0d3d172e5fc3ac2ebb9d83ea9936c3664331fa81fe8629f8. Its immutable PENDING label is historical. Actual results and source/preservation evidence: Architecture ANALYTICS_POC_ADMISSION_VERIFICATION.md and ANALYTICS_POC_ADMISSION_EVIDENCE_2026_11_05.json.
+
+Limits: 262144 UTF-8 bytes, depth 64, total 10000 object members/array entries, raw numeric token length 1000 and absolute raw exponent at most 1000. Streaming preflight examines raw numeric spelling before BigDecimal conversion, arithmetic or canonical encoding. Boundary-equivalent numbers preserve the existing full-envelope fingerprint. Inputs beyond limits produce ADMISSION_LIMIT, not INVALID_ENVELOPE, without trusting scope/identity or changing projection state. Diagnostics contain only full-body SHA-256/reason, require confirmation/no mandatory return before ACK, and retain bounded retries/unacknowledged pause on failure.
+
+This profile does not promise acceptance of every schema-valid encoding or complete upstream history. Public Contracts 0.11.0 bytes, source semantics and API responses remain unchanged. Default runtime remains disabled and activation requires the existing verified short-lived generated manifest/database marker. Broader producer support needs reviewed transport/streaming limits before activation. No existing stack or REAL/production activation is authorized.
+
+Run Java 25 wrapper verify -Pintegration and the independent pin/JAR validator. Infrastructure verify_analytics.py uses only a new owned disposable project, independently validates an oversized same-instant timestamp against its exact input-schema pin, and verifies classified diagnostics/no effect/confirmation/pause/recovery plus retained real source/Gateway/Web/rebuild behavior. Owner functional/M4 and original field/REAL/device gates remain open.

@@ -1,0 +1,8 @@
+{
+  "status": "PREPARED_NOT_AUTHORIZED",
+  "date": "2026-11-05",
+  "files": {
+    "ANL02_ADAPTER_REVIEW.md": "ecb5540e401219a3db5c6c161762d26e48fb6bff7b26877833fd4272adbe7b92",
+    "anl02-adapter/V3__environmental_history.sql": "78165fefbd980776ac44cb567e8fb213ac4fdd5ac979a4442e7e2d6d545647a6"
+  }
+}

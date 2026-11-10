@@ -1,0 +1,32 @@
+"""Standalone exact approved Analytics API/input pins; no sibling paths or network."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import zipfile
+
+ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = '1759e5d95fb3602b623b995e4650f035b67dbb550760116587f46c031ca7d111'
+EXPECTED = {'openapi/analytics-service.yaml': '7ab8ff23db5c81e3ba1ad537fdab6037f908bc815ca7c90a1d117d573a44e432', 'events/operations/v2/LatexCollectionRecorded.schema.json': 'd0dab40a2c23f751b3241f8842b180ead38e15102b699b4701827b857b58e479', 'events/operations/v2/DrcMeasurementRecorded.schema.json': '8117eaeddafa695529c99274cff4cbeafa372664914d95b4d5f8c5b2f7c31709', 'events/operations/v2/LatexCollectionAdjusted.schema.json': '985f6d66815682f06ad6e743cea517dcc8e96c99dd91f72f0234c86d7fb32fe1', 'events/operations/v2/LatexCollectionVoided.schema.json': 'a0b6270ca8d73d46bbd07225a84ecdf8d4a27e24fbaad42dbb0a41953041f989', 'events/telemetry/v1/TelemetryObservationRecorded.schema.json': '43f652fbbe98c6be3e545307a0fc6c50b2ebce0834c986dfe87d5c3bc5a4a2d2'}
+ARCHIVE = {'docs/contracts-previous-0.11.0/openapi/analytics-service.yaml': 'f84ce861b7f6ed1b287ca3a5e8430061a568f9c22cac280d52fbb574117df300', 'docs/contracts-previous-0.11.0/RELEASE.json': '9a01af5cec2d1124a50bca2f0e3eb42e7ff17e26b0aa07341a7b6c59f001defc'}
+
+
+def validate(read):
+    metadata = json.loads(read('RELEASE.json'))
+    assert metadata['release'] == '0.12.0' and metadata['sourceManifestSha256'] == MANIFEST
+    assert metadata['files'] == EXPECTED and metadata['archive'] == ARCHIVE
+    for path, digest in EXPECTED.items():
+        assert hashlib.sha256(read(path)).hexdigest() == digest, path
+
+def run(jar=None):
+    for path, digest in ARCHIVE.items():
+        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest, path
+    validate(lambda path: (ROOT / 'src/main/resources/contracts' / path).read_bytes())
+    if jar:
+        with zipfile.ZipFile(jar) as packaged:
+            validate(lambda path: packaged.read('BOOT-INF/classes/contracts/' + path))
+    print('PASS: exact local Contracts 0.12.0 API/five-input pins and 0.11.0 archive' + (' and packaged JAR resources' if jar else '') + '; no sibling dependency')
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(); parser.add_argument('--jar', type=Path)
+    run(parser.parse_args().jar)
