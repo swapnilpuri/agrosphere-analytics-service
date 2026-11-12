@@ -18,7 +18,8 @@ public final class GeneratedAnalytics {
             this.file=path.toRealPath();this.root=file.getParent();this.digest=digest;this.clock=clock;
             config=JsonMapper.builder().enable(tools.jackson.core.StreamReadFeature.STRICT_DUPLICATE_DETECTION).build().readTree(read(file,16384));
             var run=CollectionEventJson.id(config.path("runId").asText());if(!run.toString().equals(config.path("runId").asText()))throw new IllegalArgumentException();
-            if(!config.path("projectId").asText().matches("agrosphere-3a-check-[0-9a-f]{8}"))throw new IllegalArgumentException();
+            var project=config.path("projectId").asText();
+            if(!project.matches("agrosphere-3a-check-[0-9a-f]{8}") && !project.equals("agrosphere-poc-close-"+run.toString().replace("-","")))throw new IllegalArgumentException();
             scopes=new HashSet<>();if(!config.path("scopes").isArray()||config.path("scopes").isEmpty()||config.path("scopes").size()>100)throw new IllegalArgumentException();
             for(var scope:config.path("scopes"))scopes.add(new Scope(CollectionEventJson.id(scope.path("estateId").asText()),CollectionEventJson.id(scope.path("blockId").asText())));
             verify();

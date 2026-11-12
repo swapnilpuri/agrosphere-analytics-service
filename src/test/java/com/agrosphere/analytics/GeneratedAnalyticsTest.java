@@ -32,6 +32,16 @@ class GeneratedAnalyticsTest {
         assertThrows(IllegalArgumentException.class,()->fixture(now.minusSeconds(1)));
         assertThrows(IllegalArgumentException.class,()->fixture(now.plusSeconds(3600)));
     }
+    @Test void pocCloseProjectMustMatchTheEntireRunIdentity()throws Exception{
+        var json=JsonMapper.builder().build();var value=(tools.jackson.databind.node.ObjectNode)json.readTree(Files.readAllBytes(file));
+        value.put("projectId","agrosphere-poc-close-"+run.replace("-",""));
+        Files.write(file,json.writeValueAsBytes(value));sha=hash(Files.readAllBytes(file));fixture(now).permit(estate,block);
+        for(var project:List.of("agrosphere-poc-close-"+UUID.randomUUID().toString().replace("-",""),
+            "agrosphere-poc-close-1234abcd","agrosphere-poc-close-"+run.replace("-","")+"-extra","existing-stack")){
+            value.put("projectId",project);Files.write(file,json.writeValueAsBytes(value));sha=hash(Files.readAllBytes(file));
+            assertThrows(IllegalArgumentException.class,()->fixture(now));
+        }
+    }
     @Test void changedManifestOrMarkerStopsAnAlreadyConstructedFixture()throws Exception{
         var fixture=fixture(now);Files.writeString(root.resolve(".generated-analytics-owner"),UUID.randomUUID().toString());
         assertThrows(SecurityException.class,fixture::verify);Files.writeString(root.resolve(".generated-analytics-owner"),run);

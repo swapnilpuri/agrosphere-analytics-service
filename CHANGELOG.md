@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — approved POC-CLOSE ownership profile
+
+Admit the approved `agrosphere-poc-close-<full UUID hex>` fixture only when its full identity matches the canonical manifest run UUID. Existing legacy fixture admission, two-hour expiry, exact hashes/markers, source scopes and DB/principal bindings remain enforced. No contract or migration change.
+
 ## Unreleased - approved ANL-01 finite admission
 
 Enforce approved raw numeric/depth/member/byte admission limits before decimal conversion; distinguish sanitized ADMISSION_LIMIT and preserve confirmed-diagnostic-before-ACK/pause semantics. Exact wire contracts and admitted fingerprints remain unchanged.
